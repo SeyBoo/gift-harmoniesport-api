@@ -1,0 +1,20 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+{
+  "onCommit": {
+    "createIssue": {
+      "title": "Auto-generated: ${commitMessage}",
+      "description": "Changes made in commit: ${commitHash}",
+      "labels": ["auto-created"]
+    }
+  },
+  "onBranchMerge": {
+    "updateIssue": {
+      "status": "Completed",
+      "comment": "Branch ${branchName} has been merged."
+    }
+  }
+}

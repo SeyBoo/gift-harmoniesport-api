@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(./venv/bin/pip install psycopg2-binary python-dotenv)",
+      "Bash(./venv/bin/python:*)",
+      "Bash(ping:*)",
+      "Bash(./venv/bin/pip install mysql-connector-python)",
+      "Bash(chmod:*)",
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(node:*)",
+      "Bash(AWS_ACCESS_KEY_ID=DO00PJ3J2YXG2AAUANYV AWS_SECRET_ACCESS_KEY='QhF6rLRAlJ4DRv+4IZCD5Uo1tVnrJmS7VN7ZzLL0EYM' aws s3:*)",
+      "Bash(aws s3api get-bucket-acl:*)",
+      "Bash(aws s3api put-bucket-policy:*)",
+      "Bash(aws s3api get-public-access-block:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
