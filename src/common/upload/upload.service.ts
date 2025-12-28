@@ -25,16 +25,24 @@ export class UploadService {
   private s3Client: S3Client;
   private readonly bucketName: string;
   private readonly s3Uri: string;
+  private readonly s3Prefix: string;
 
-  public readonly FIELD_TO_PATH_UPLOAD = {
-    video_promo: 'uploads/videos-promo',
-    video_thanks: 'uploads/videos-thanks',
-    image: 'uploads/cards-image',
-    collector_image: 'uploads/cards-collector',
-    digital_image: 'uploads/cards-digital',
-    magnet_image: 'uploads/cards-magnet',
-    pdf: 'uploads/cards-pdf',
-  };
+  private getPrefix(): string {
+    return this.s3Prefix ? `${this.s3Prefix}/` : '';
+  }
+
+  public get FIELD_TO_PATH_UPLOAD() {
+    const prefix = this.getPrefix();
+    return {
+      video_promo: `${prefix}uploads/videos-promo`,
+      video_thanks: `${prefix}uploads/videos-thanks`,
+      image: `${prefix}uploads/cards-image`,
+      collector_image: `${prefix}uploads/cards-collector`,
+      digital_image: `${prefix}uploads/cards-digital`,
+      magnet_image: `${prefix}uploads/cards-magnet`,
+      pdf: `${prefix}uploads/cards-pdf`,
+    };
+  }
 
   constructor(
     private configService: ConfigService,
@@ -46,6 +54,7 @@ export class UploadService {
   ) {
     this.bucketName = this.configService.get<string>('AWS_BUCKET');
     this.s3Uri = this.configService.get<string>('AWS_CDN');
+    this.s3Prefix = this.configService.get<string>('AWS_PREFIX') || '';
     const endpoint = this.configService.get<string>('AWS_ENDPOINT');
     const region = this.configService.get<string>('AWS_REGION') || 'ams3';
     const accessKeyId = this.configService.get<string>('BUCKET_ACCESS_KEY');
@@ -259,7 +268,7 @@ export class UploadService {
         const filename = `pdf-${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 
         // Store original PDF
-        const pdfKey = `uploads/cards-pdf/${filename}.pdf`;
+        const pdfKey = `${this.getPrefix()}uploads/cards-pdf/${filename}.pdf`;
         await this.s3Client.send(
           new PutObjectCommand({
             Bucket: this.bucketName,
@@ -276,7 +285,7 @@ export class UploadService {
         const pngBuffer = await this.convertPdfToImage(body);
 
         // Create new image path with PNG extension
-        const pngKey = `uploads/cards-image/${filename}.png`;
+        const pngKey = `${this.getPrefix()}uploads/cards-image/${filename}.png`;
 
         // Process PNG for card images (with lock overlay)
         if (!forcePush) {
@@ -302,7 +311,7 @@ export class UploadService {
     }
 
     if (
-      uploadParams.Key.startsWith('uploads/cards-image') &&
+      uploadParams.Key.startsWith(`${this.getPrefix()}uploads/cards-image`) &&
       !forcePush &&
       !isPdf
     ) {
@@ -358,7 +367,7 @@ export class UploadService {
       buffer,
       {
         ContentType: mimetype,
-        Key: `uploads/cards-image-unlocked/${imageName}`,
+        Key: `${this.getPrefix()}uploads/cards-image-unlocked/${imageName}`,
       },
       true,
     );
@@ -369,7 +378,7 @@ export class UploadService {
       lockedImage,
       {
         ContentType: mimetype,
-        Key: `uploads/cards-image/${imageName}`,
+        Key: `${this.getPrefix()}uploads/cards-image/${imageName}`,
       },
       true,
     );
