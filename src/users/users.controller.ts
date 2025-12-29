@@ -118,7 +118,7 @@ export class UsersController {
     );
 
     if (userExist) {
-      return { message: 'User already exists.' };
+      throw new HttpException('User already exists.', HttpStatus.CONFLICT);
     }
 
     const timestamp = Date.now();
