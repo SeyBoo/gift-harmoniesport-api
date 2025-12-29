@@ -2,7 +2,6 @@ import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WalletsService } from '../wallets/wallets.service';
 import { MailjetService } from '../common/mailjet/mailjet.service';
-import { EmailService } from '../common/email/email.service';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { User } from './entities/user.entity';
@@ -45,7 +44,7 @@ import { TransactionsModule } from '../transactions/transactions.module';
     forwardRef(() => PaymentModule),
   ],
   controllers: [UsersController],
-  providers: [UsersService, WalletsService, MailjetService, EmailService],
+  providers: [UsersService, WalletsService, MailjetService],
   exports: [UsersService],
 })
 export class UsersModule {}

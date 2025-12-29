@@ -55,7 +55,6 @@ import {
 import { TranslatorService } from '../common/translator/translator.service';
 import { UploadService } from '../common/upload/upload.service';
 import { PaymentService } from '../payment/payment.service';
-import { EmailService } from '../common/email/email.service';
 import { UserTypeEnum } from './entities/user-type.entity';
 @Controller('users')
 export class UsersController {
@@ -67,7 +66,6 @@ export class UsersController {
     private readonly uploadService: UploadService,
     private readonly translatorService: TranslatorService,
     private readonly paymentService: PaymentService,
-    private readonly emailService: EmailService,
   ) {}
 
   @Get('/types')
@@ -199,24 +197,16 @@ export class UsersController {
     );
 
     if (process.env.NODE_ENV.includes('prod') && createUserDto.userType as unknown as string === "1") {
-      await this.emailService.sendEmail({
-        to: 'contact@giftasso.com',
-        from: 'it@giftasso.com',
-        subject: `New Association Registration: ${createUserDto.name || createUserDto.email}`,
-        text:`
-A new association has registered on GiftAsso.
-
-Email: ${createUserDto.email}
-
-Please review and validate the association in the admin panel.
-      `.trim(),
-        html: `
-        <h2>New Association Registration</h2>
+      // Non-blocking admin notification - don't await, catch errors silently
+      this.mailjetService.sendEmail(
+        'contact@giftasso.com',
+        `New Association Registration: ${createUserDto.name || createUserDto.email}`,
+        `A new association has registered on GiftAsso.\n\nEmail: ${createUserDto.email}\n\nPlease review and validate the association in the admin panel.`,
+        `<h2>New Association Registration</h2>
         <p><strong>Email:</strong> ${createUserDto.email}</p>
         <hr>
-        <p>Please review and validate the association in the admin panel.</p>
-      `,
-      });
+        <p>Please review and validate the association in the admin panel.</p>`,
+      ).catch((err) => console.error('Admin notification email failed:', err));
     }
     const signInUser = await this.authService.signIn({
       email: createUserDto.email,

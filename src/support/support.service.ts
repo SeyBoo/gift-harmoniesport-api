@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual, In } from 'typeorm';
-import { EmailService } from '../common/email/email.service';
+import { MailjetService } from '../common/mailjet/mailjet.service';
 import { ContactSupportDto } from './dto/contact-support.dto';
 import { Order } from '../payment/entities/order.entity';
 import { Product } from '../products/entities/product.entity';
@@ -11,7 +11,7 @@ export class SupportService {
   private readonly SUPPORT_EMAIL = 'contact@giftasso.com';
 
   constructor(
-    private readonly emailService: EmailService,
+    private readonly mailjetService: MailjetService,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(Product)
@@ -43,13 +43,12 @@ export class SupportService {
         ${contactData.message}
       `;
 
-      await this.emailService.sendEmail({
-        to: this.SUPPORT_EMAIL,
-        from: 'it@giftasso.com',
-        subject: contactData.subject || 'Support Request',
-        text: textContent,
-        html: emailContent,
-      });
+      await this.mailjetService.sendEmail(
+        this.SUPPORT_EMAIL,
+        contactData.subject || 'Support Request',
+        textContent,
+        emailContent,
+      );
 
       return {
         success: true,
@@ -245,13 +244,12 @@ export class SupportService {
       ];
 
       try {
-        await this.emailService.sendEmail({
-          to: recipients.join(', '),
-          from: 'it@giftasso.com',
-          subject: `Récapitulatif Hebdomadaire - ${orders.length} commandes`,
-          text: textContent,
-          html: emailContent,
-        });
+        await this.mailjetService.sendEmail(
+          recipients.join(', '),
+          `Récapitulatif Hebdomadaire - ${orders.length} commandes`,
+          textContent,
+          emailContent,
+        );
 
         return {
           success: true,
